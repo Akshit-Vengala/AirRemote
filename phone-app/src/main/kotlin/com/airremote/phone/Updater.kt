@@ -119,9 +119,14 @@ class Updater(private val context: Context) {
             val release = json.decodeFromString<GithubRelease>(body)
             val latestTag = release.tagName.removePrefix("v")
 
-            // Find the first asset that's an .apk (the phone-app build attached to the release).
-            val apkAsset = release.assets.firstOrNull { it.name.endsWith(".apk", ignoreCase = true) }
-                ?: return UpdateCheck.Failed("Latest release has no APK attached")
+            // Pick the PHONE-app APK. A release also carries the tv-app APK (and the
+            // helper .jar), so we must NOT just grab the first .apk — that could be the
+            // TV build. Prefer an asset whose name contains "phone"; only if none does
+            // (e.g. a single-APK release) fall back to the first .apk.
+            val apks = release.assets.filter { it.name.endsWith(".apk", ignoreCase = true) }
+            val apkAsset = apks.firstOrNull { it.name.contains("phone", ignoreCase = true) }
+                ?: apks.firstOrNull()
+                ?: return UpdateCheck.Failed("Latest release has no phone APK attached")
 
             return if (isNewer(latestTag, currentVersion)) {
                 UpdateCheck.Available(

@@ -18,6 +18,7 @@
 
     <!-- ══ Main remote UI ══════════════════════════════════════════════════ -->
     <LinearLayout
+        android:id="@+id/remoteColumn"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -118,10 +119,11 @@
             </soup.neumorphism.NeumorphCardView>
         </LinearLayout>
 
-        <!-- D-pad + aim area: weight=1 absorbs spare vertical space and centers
-             the stack. The DPadView also draws the LEFT volume arc around its ring,
-             so there is no separate volume slider. aimAnchor reserves the spot below
-             the D-pad where MainActivity positions the overlay aim button. -->
+        <!-- D-pad + aim area. weight=1 absorbs leftover space and centres the stack on
+             large screens; on small screens applyResponsiveScale() (MainActivity) shrinks
+             EVERY dimension in this column by one factor, so the whole remote keeps its
+             original proportions but fits. The DPadView squares itself to min(width,
+             height). aimAnchor reserves the overlay Aim button's spot below the D-pad. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -131,9 +133,6 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <!-- Width is match_parent so onMeasure (which squares to min(w,h)) caps
-                 the D-pad at the available width on narrow phones — preventing the
-                 left volume arc from clipping — while still growing to 360dp tall. -->
             <com.airremote.phone.DPadView
                 android:id="@+id/dpadView"
                 android:layout_width="match_parent"

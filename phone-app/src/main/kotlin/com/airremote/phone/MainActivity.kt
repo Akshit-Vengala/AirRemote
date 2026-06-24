@@ -19,9 +19,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Base64
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.AnimationSet
@@ -194,6 +196,9 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Shrink the whole remote uniformly to fit shorter screens (keeps proportions).
+        applyResponsiveScale()
+
         val ipField      = findViewById<EditText>(R.id.ipField)
         val statusText   = findViewById<TextView>(R.id.statusText)
         // connectButton / discoverButton are now NeumorphCardView (a FrameLayout
@@ -219,10 +224,10 @@ class MainActivity : Activity() {
         closeConnectBtn.setOnClickListener { connectOverlay.visibility = View.GONE }
         connectOverlay.setOnClickListener { connectOverlay.visibility = View.GONE }
 
-        // Prefill the IP: prefer the last IP we successfully connected to so a
-        // returning user can just tap Connect. `?:` (elvis) falls back to the
-        // build-time default when nothing has been saved yet.
-        ipField.setText(prefs.getString(PREF_LAST_IP, null) ?: BuildConfig.TV_IP)
+        // Prefill the IP only with an address the user has connected to before, so a
+        // returning user can just tap Connect. On first run we leave it blank — the hint
+        // placeholder shows — rather than shipping a hard-coded IP as the default.
+        prefs.getString(PREF_LAST_IP, null)?.let { ipField.setText(it) }
 
         // ── Platform picker ────────────────────────────────────────────────
         // Populate the spinner from the TvPlatform enum. The spinner shows the
@@ -725,6 +730,60 @@ class MainActivity : Activity() {
 
     private fun setHoverFocusEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(PREF_HOVER_FOCUS, enabled).apply()
+    }
+
+    // The remote column is authored (in activity_main.xml) for a screen about this tall,
+    // in dp. On shorter screens we scale EVERY dimension in the column down by one factor
+    // so the layout keeps its exact proportions but always fits — no element clips, and
+    // the D-pad / buttons / margins shrink together instead of one outgrowing the others.
+    private val designHeightDp = 850f
+
+    private fun applyResponsiveScale() {
+        val column = findViewById<View>(R.id.remoteColumn)
+        // Hide until scaled so a one-frame oversized/clipped layout never flashes.
+        column.visibility = View.INVISIBLE
+        val root = column.parent as? View ?: run { column.visibility = View.VISIBLE; return }
+        // post: wait for the first layout pass so root.height is the real usable height
+        // (screen minus the status/navigation bars), not 0.
+        root.post {
+            val usableH = root.height
+            val designH = designHeightDp * resources.displayMetrics.density
+            // Only ever shrink (cap at 1f); never blow the UI up on tall screens.
+            val s = if (usableH > 0) (usableH / designH).coerceAtMost(1f) else 1f
+            if (s < 0.999f) {
+                scaleViewTree(column, s)
+                // The Aim button is an overlay sibling (sits above the dim layer), so it's
+                // outside the column — scale it by the same factor to match the D-pad.
+                scaleViewTree(aimButton, s)
+                column.requestLayout()
+                // Re-place the Aim button now that the anchor moved/resized.
+                syncAimButtonPosition(aimButton)
+            }
+            column.visibility = View.VISIBLE
+        }
+    }
+
+    // Recursively multiply every size/margin/padding/text-size in [v]'s subtree by [s].
+    // width/height of 0 (weighted children) or MATCH/WRAP (negative) are left untouched —
+    // only real fixed dimensions scale.
+    private fun scaleViewTree(v: View, s: Float) {
+        v.layoutParams?.let { lp ->
+            if (lp.width > 0) lp.width = (lp.width * s).toInt()
+            if (lp.height > 0) lp.height = (lp.height * s).toInt()
+            if (lp is ViewGroup.MarginLayoutParams) {
+                lp.leftMargin = (lp.leftMargin * s).toInt()
+                lp.topMargin = (lp.topMargin * s).toInt()
+                lp.rightMargin = (lp.rightMargin * s).toInt()
+                lp.bottomMargin = (lp.bottomMargin * s).toInt()
+            }
+            v.layoutParams = lp
+        }
+        v.setPaddingRelative(
+            (v.paddingStart * s).toInt(), (v.paddingTop * s).toInt(),
+            (v.paddingEnd * s).toInt(), (v.paddingBottom * s).toInt(),
+        )
+        if (v is TextView) v.setTextSize(TypedValue.COMPLEX_UNIT_PX, v.textSize * s)
+        if (v is ViewGroup) for (i in 0 until v.childCount) scaleViewTree(v.getChildAt(i), s)
     }
 
     private fun syncAimButtonPosition(aimButton: View) {

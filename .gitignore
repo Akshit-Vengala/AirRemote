@@ -55,3 +55,6 @@ githubactionitems.md
 
 # Personal dev helper — re-grants TV a11y after reinstall; not part of the app
 enablea11y.ps1
+
+# Local staging for GitHub Release uploads — binaries, not for the repo
+release-assets/

@@ -51,17 +51,9 @@ android {
         applicationId = "com.airremote.phone"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
-        // buildConfigField injects a constant into the generated BuildConfig class.
-        // In code: BuildConfig.TV_IP  →  "192.168.0.104" (or whatever is in local.properties)
-        // The fallback ("192.168.0.104") is used if local.properties doesn't have the key.
-        buildConfigField(
-            "String",
-            "TV_IP",
-            "\"${localProps.getProperty("tv.ip", "192.168.0.104")}\""
-        )
         // Lets AdbManager compare the bundled tv-app's versionCode against
         // what's installed on the TV, and skip the push if already up-to-date.
         buildConfigField("int", "TV_APP_VERSION_CODE", "$tvAppVersionCode")
