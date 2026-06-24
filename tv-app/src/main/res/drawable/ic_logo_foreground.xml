@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive-icon foreground: stylised white TV remote. Shared logo with the phone
+     app. Original art — generic remote illustration. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Remote body -->
+    <path
+        android:pathData="M50,22 L58,22 Q68,22 68,32 L68,76 Q68,86 58,86 L50,86 Q40,86 40,76 L40,32 Q40,22 50,22 Z"
+        android:fillColor="#F4F6FA" />
+    <!-- Power dot (top-left) -->
+    <path
+        android:pathData="M44,31 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0 Z"
+        android:fillColor="#E5392F" />
+    <!-- D-pad ring -->
+    <path
+        android:pathData="M43,50 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 Z"
+        android:fillColor="#2C3142" />
+    <!-- D-pad centre -->
+    <path
+        android:pathData="M49.5,50 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 Z"
+        android:fillColor="#E8EBF0" />
+    <!-- Bottom buttons -->
+    <path
+        android:pathData="M43.5,74 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 Z"
+        android:fillColor="#2C3142" />
+    <path
+        android:pathData="M55.5,74 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 Z"
+        android:fillColor="#2C3142" />
+</vector>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Popup shown when the settings button is tapped. Single checkable item; the
+     Activity reads/writes its checked state from SharedPreferences and pushes
+     the value to the TV over the WebSocket. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_hover_to_focus"
+        android:title="@string/menu_hover_to_focus"
+        android:checkable="true" />
+</menu>

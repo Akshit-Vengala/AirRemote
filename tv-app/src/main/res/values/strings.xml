@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">AirRemote TV</string>
+    <string name="accessibility_service_description">AirRemote input injection</string>
+    <!-- Label for the no-UI launcher tile that toasts the service state + TV IP. -->
+    <string name="info_activity_label">AirRemote (Service Info)</string>
+</resources>

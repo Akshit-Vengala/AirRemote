@@ -1,0 +1,9 @@
+[
+  {
+    "label": "TVLauncher",
+    "packageName": "com.tvlauncher",
+    "apkUrl": "https://github.com/Akshit-Vengala/TVLauncher/releases/download/0.2.0/TVLauncher-0.2.0.apk",
+    "description": "A lightweight, fast home-screen launcher for Android TV.",
+    "iconUrl": ""
+  }
+]

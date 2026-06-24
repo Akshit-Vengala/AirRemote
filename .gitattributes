@@ -1,0 +1,38 @@
+# Normalize line endings so the repo behaves the same on Windows, macOS, Linux.
+# Without this, a Windows checkout can rewrite LF→CRLF and break shell scripts
+# (notably the Gradle `gradlew` launcher) or churn diffs on every commit.
+
+# Default: let git decide text vs binary, and store text as LF in the repo.
+* text=auto eol=lf
+
+# Scripts that MUST stay LF regardless of platform (run by sh/bash):
+gradlew         text eol=lf
+*.sh            text eol=lf
+
+# Windows batch files MUST stay CRLF or cmd.exe mis-parses them:
+*.bat           text eol=crlf
+*.cmd           text eol=crlf
+*.ps1           text eol=crlf
+
+# Source / config — explicit text so they normalize predictably:
+*.kt            text
+*.kts           text
+*.java          text
+*.xml           text
+*.toml          text
+*.properties    text
+*.md            text
+*.pro           text
+
+# Binary assets — never normalize, never diff as text:
+*.apk           binary
+*.aab           binary
+*.jar           binary
+*.keystore      binary
+*.jks           binary
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.webp          binary
+*.ttf           binary
+*.otf           binary

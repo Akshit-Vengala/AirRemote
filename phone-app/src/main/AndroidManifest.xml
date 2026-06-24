@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- NsdDiscovery: needed to get a WifiManager reference for the MulticastLock -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- NsdDiscovery: tells the WiFi driver to pass mDNS multicast packets up the stack.
+         Without this lock, Android silently drops 224.0.0.251 packets and discovery
+         finds nothing on most phones / routers. -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+
+    <!-- Self-update: lets the app launch the system package installer for an APK it
+         downloaded from GitHub Releases. On Android 8+ this is a per-app grant the user
+         confirms once ("Allow from this source"); Updater routes them to that screen if
+         it isn't granted yet. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- usesCleartextTraffic: allows ws:// (unencrypted WebSocket) over LAN.
+         Android 9+ blocks cleartext by default. Fine here — traffic never leaves the LAN. -->
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <!--
+                intent-filter with MAIN + LAUNCHER makes this Activity appear
+                as the app's entry point in the phone's app drawer.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- FileProvider: hands a content:// URI for the downloaded update APK to the
+             system installer. Since Android 7 you can't pass a raw file:// URI across
+             apps (FileUriExposedException); a FileProvider grants the installer
+             temporary read access to one private file via a content:// URI instead.
+             The authority must be unique on the device — we namespace it under the
+             app id. Paths it may expose are declared in res/xml/file_paths.xml. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+    </application>
+
+</manifest>

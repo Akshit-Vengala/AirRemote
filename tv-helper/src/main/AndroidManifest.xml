@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Deliberately empty manifest.
+
+        We never install this as an Android app on the TV — there's no Activity,
+        no Service, no BroadcastReceiver. The APK exists only as a delivery
+        mechanism for our classes.dex, which `app_process` will load when the
+        phone-app pushes the file to /data/local/tmp/ and launches it as the
+        shell user (UID 2000).
+
+        An empty <application/> is the smallest legal application element that
+        AGP will accept.
+    -->
+    <application />
+
+</manifest>

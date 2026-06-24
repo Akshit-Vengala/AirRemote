@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Neumorphic navy. For soft-UI, every surface is the SAME mid-navy as the
+         window background; depth comes from a lighter highlight (top-left) and a
+         darker shadow (bottom-right). So bg_primary == bg_surface == bg_elevated. -->
+    <color name="bg_primary">#1C2542</color>
+    <color name="bg_surface">#1C2542</color>
+    <color name="bg_elevated">#1C2542</color>
+    <!-- Neumorphism shadow pair (lighter than base / darker than base). -->
+    <color name="neumorph_light">#2A3866</color>
+    <color name="neumorph_dark">#10162C</color>
+
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#9FB0D0</color>
+    <color name="accent">#4C8DFF</color>
+    <color name="ring_idle">#2A3658</color>
+    <color name="ring_pressed">#4C8DFF</color>
+    <color name="power_red">#FF5252</color>
+    <!-- Green "connected" dot in the status pill. -->
+    <color name="status_online">#3DD68C</color>
+</resources>

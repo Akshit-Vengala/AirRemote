@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- BootReceiver: lets the OS deliver BOOT_COMPLETED so MainService (mDNS +
+         WebSocket) auto-starts when the TV powers on, without the phone first
+         starting it over ADB. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!--
+        Required when targetSdk >= 34 to use foregroundServiceType="connectedDevice".
+        "connectedDevice" is the correct type for a service that manages a network socket.
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+
+    <!-- Package visibility (targetSdk 30+): without this, queryIntentActivities
+         returns nothing on Android 11+, so the app-shortcut picker would list zero
+         apps. We declare the two launcher categories we enumerate (TV leanback +
+         phone launcher) so those apps are visible to us. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <!-- Declares this as a TV (leanback) app. Touch input is not available on a TV. -->
+    <uses-feature android:name="android.software.leanback" android:required="true" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:banner="@drawable/banner_airremote"
+        android:label="@string/app_name">
+
+        <!--
+            No-UI launcher tile. Gives the user something tappable in the TV's app
+            list that toasts the service state + TV IP (and starts MainService if
+            it's down). Translucent + finish()-in-onCreate means no window is drawn.
+
+            LEANBACK_LAUNCHER makes it appear on the Android TV launcher (which needs
+            the android:banner above); LAUNCHER covers non-leanback / custom launchers.
+        -->
+        <activity
+            android:name=".InfoActivity"
+            android:exported="true"
+            android:label="@string/info_activity_label"
+            android:banner="@drawable/banner_airremote"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+            No launcher Activity declared — this app has no UI.
+            Start it manually via ADB:
+              adb shell am start-foreground-service -n com.airremote.tv/.MainService
+
+            exported="true": required for ADB shell to start the service on Android 10+.
+            In Phase 2 this will be locked down once auto-start via BOOT_COMPLETED is wired up.
+        -->
+        <service
+            android:name=".MainService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="connectedDevice" />
+
+        <!--
+            Auto-start MainService on boot so the TV advertises mDNS + opens its
+            WebSocket without the phone launching it over ADB first.
+
+            exported="true": BOOT_COMPLETED is a system (out-of-app) broadcast, so
+            the receiver must be reachable by the OS. android:directBootAware is
+            left default (false) — we only want to run after the user has unlocked
+            and normal storage is available, which BOOT_COMPLETED guarantees.
+        -->
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!--
+            AccessibilityService registration.
+
+            permission="BIND_ACCESSIBILITY_SERVICE": only the Android system is
+            allowed to bind to this service. Any other app attempting to bind will
+            be rejected by the OS. This is a security requirement for all
+            accessibility services.
+
+            exported="true": the system (a different process) must be able to reach
+            this service — so it must be exported. The permission above ensures only
+            the system actually does so.
+
+            The user must manually enable this in:
+              Settings → Accessibility → AirRemote
+            Until they do, the service is never bound and InputService.instance is null.
+        -->
+        <service
+            android:name=".InputService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <!--
+                Points the system to our XML config file. Without this meta-data tag
+                the system treats the service as having no capabilities declared and
+                may refuse to bind it or show it in the Accessibility settings list.
+            -->
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+    </application>
+
+</manifest>

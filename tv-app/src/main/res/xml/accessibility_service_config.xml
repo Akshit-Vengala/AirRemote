@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    This file is referenced from the <meta-data> tag in AndroidManifest.xml.
+    It tells the system what capabilities our AccessibilityService needs.
+
+    accessibilityEventTypes="typeViewClicked|typeWindowStateChanged|typeViewScrolled"
+        typeWindowStateChanged lets onAccessibilityEvent observe which app is in
+        the foreground — used only to detect when a launcher settles after boot so
+        we can immediately launch the user's chosen boot app (no overlap, no fixed
+        wait). typeViewClicked is kept as a cheap second subscription. We act only
+        while a boot launch is pending; otherwise these events are ignored.
+        typeViewScrolled is the probe-confirmation signal for the adaptive scroll
+        path: after a test swipe we listen for the target app to report a scroll,
+        which tells us the app honours touch (so we keep using gesture swipes for
+        fine control) versus ignoring it (so we fall back to a11y ACTION_SCROLL).
+
+    accessibilityFeedbackType="feedbackGeneric"
+        Required field — must pick something even though we produce no feedback.
+        feedbackGeneric is the catch-all for services that don't fit other categories.
+
+    accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows"
+        flagRetrieveInteractiveWindows makes getWindows() return all on-screen
+        windows (not just the active one). We use it so the click path can
+        explicitly pick the foreground app window instead of trusting
+        rootInActiveWindow, which on some vendor stacks returns our own
+        TYPE_ACCESSIBILITY_OVERLAY (the cursor dot) as "active".
+
+    canRetrieveWindowContent="true"
+        Required for rootInActiveWindow / getWindows() to return non-null
+        AccessibilityNodeInfo trees. Without this the click path can't walk
+        the launcher's view tree to find what's under the cursor and every
+        click falls through to dispatchGesture (which D-pad TV apps ignore).
+-->
+<accessibility-service
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeViewClicked|typeWindowStateChanged|typeViewScrolled"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows"
+    android:canRetrieveWindowContent="true"
+    android:canPerformGestures="true"
+    android:description="@string/accessibility_service_description" />

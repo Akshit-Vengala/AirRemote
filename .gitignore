@@ -1,0 +1,55 @@
+# ─── Gradle ──────────────────────────────────────────────────────────────────
+.gradle/
+build/
+**/build/
+# Keep the wrapper jar/scripts tracked (they belong in VCS); ignore the
+# downloaded distribution cache only.
+gradle/wrapper/dists/
+
+# ─── Android / build outputs ─────────────────────────────────────────────────
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+# machine-specific SDK path + tv.ip + github.* keys; injected at build time
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+release/
+
+# Generated APK/helper bundles copied into the phone-app assets at build time
+# by copyHelperToAssets / copyTvAppToAssets. These are rebuilt every build —
+# never commit them.
+phone-app/src/main/assets/airremote-helper.jar
+phone-app/src/main/assets/airremote-tv.apk
+
+# Signing material — never commit keystores or their passwords.
+*.jks
+*.keystore
+keystore.properties
+
+# ─── IDE / tooling ───────────────────────────────────────────────────────────
+.idea/
+*.iml
+.kotlin/
+.vscode/
+# Keep shared VS Code settings if the team wants them: un-ignore explicitly, e.g.
+# !.vscode/settings.json
+
+# ─── OS cruft ────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Logs / scratch ──────────────────────────────────────────────────────────
+*.log
+*.hprof
+
+# ─── Temporarily excluded (keep private until ready to publish) ───────────────
+CLAUDE.md
+docs/
+
+# Personal dev helper — re-grants TV a11y after reinstall; not part of the app
+enablea11y.ps1

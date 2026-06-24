@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">AirRemote</string>
+    <string name="hint_tv_ip">TV IP address</string>
+    <string name="connect">Connect</string>
+    <string name="status_disconnected">Not connected</string>
+    <string name="btn_back">Back</string>
+    <string name="btn_home">Home</string>
+    <string name="btn_power">Power</string>
+    <string name="btn_keyboard">Keyboard</string>
+    <string name="btn_volume">Volume</string>
+    <string name="btn_send">Enter</string>
+    <string name="hint_type_text">Type to send to TV</string>
+    <string name="btn_aim">Aim</string>
+    <string name="btn_settings">Settings</string>
+    <string name="menu_hover_to_focus">Hover to focus</string>
+    <!-- Settings panel -->
+    <string name="settings_title">Settings</string>
+    <string name="haptics">Haptic feedback</string>
+    <string name="aim_sensitivity">Aim sensitivity</string>
+    <string name="scroll_sensitivity">Scroll sensitivity</string>
+    <string name="swipe_strength_h">Horizontal swipe strength</string>
+    <string name="swipe_strength_v">Vertical swipe strength</string>
+    <!-- Custom shortcut buttons section: each row opens the app picker for one slot -->
+    <string name="settings_custom_buttons">Shortcut buttons</string>
+    <string name="settings_custom_buttons_hint">Tap a slot to choose which TV app it opens</string>
+    <!-- Slot row label, e.g. "Button 1 · YouTube". %1$d = slot, %2$s = app label -->
+    <string name="custom_slot_row">Button %1$d · %2$s</string>
+    <!-- Suggested apps (mini-store) -->
+    <string name="suggested_apps">Suggested apps</string>
+    <string name="suggested_apps_hint">Apps we recommend — tap to install on your TV</string>
+    <string name="suggested_apps_loading">Loading…</string>
+    <string name="suggested_apps_empty">No suggestions right now</string>
+    <string name="suggested_apps_need_tv">Connect to a TV to install</string>
+    <!-- Install row state. %1$s = app label -->
+    <string name="installing_app">Installing %1$s…</string>
+    <string name="installed_app">%1$s installed ✓</string>
+    <!-- Updates -->
+    <string name="updates">App version</string>
+    <string name="check_for_updates">Check for updates</string>
+    <!-- %1$s = current version name -->
+    <string name="current_version">Version %1$s</string>
+    <string name="checking_updates">Checking…</string>
+    <string name="up_to_date">You\'re on the latest version</string>
+    <!-- %1$s = new version name -->
+    <string name="update_available">Update available: %1$s</string>
+    <string name="downloading_update">Downloading update…</string>
+    <!-- Connect overlay -->
+    <string name="connect_title">Connect to TV</string>
+    <string name="discover">Find TVs</string>
+    <!-- Connect action shown as a forward arrow to match the neumorphic button style -->
+    <string name="connect_arrow">→</string>
+    <string name="btn_close">Close</string>
+    <!-- Default custom app-shortcut labels (configurable later) -->
+    <string name="app_youtube">YouTube</string>
+    <string name="app_netflix">Netflix</string>
+    <string name="app_prime">Prime</string>
+</resources>

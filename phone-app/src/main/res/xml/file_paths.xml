@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Folders the FileProvider (see AndroidManifest) is allowed to expose as
+     content:// URIs. We only ever share the downloaded update APK, which Updater
+     writes to cacheDir/updates/, so that single subtree is all we expose. -->
+<paths>
+    <!-- path="updates" maps to <app cacheDir>/updates/. name="updates" is the
+         leading path segment in the generated content:// URI. -->
+    <cache-path name="updates" path="updates/" />
+</paths>

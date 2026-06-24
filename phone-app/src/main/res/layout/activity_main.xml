@@ -1,0 +1,796 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Root is FrameLayout so we can Z-stack overlays on top of the remote UI:
+     the aim dim layer + aim button, and the connect (Discover/IP) overlay.
+     clipChildren/clipToPadding=false so the neumorph soft shadows aren't clipped.
+
+     Neumorphism note: every "raised" control is a soup.neumorphism.NeumorphCardView
+     (a framework FrameLayout subclass that paints dual soft shadows — a light
+     highlight top-left + a dark shadow bottom-right) wrapping a plain ImageView or
+     TextView. We deliberately use ONLY NeumorphCardView (not NeumorphButton/
+     ImageButton, which extend AppCompat widgets) because this app runs on a plain
+     framework Material theme, not an AppCompat theme. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <!-- ══ Main remote UI ══════════════════════════════════════════════════ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <!-- Top bar: power · status pill (tap = Discover/IP) · settings. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <soup.neumorphism.NeumorphCardView
+                android:id="@+id/powerButton"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:neumorph_shapeAppearance="@style/NeumorphOval"
+                app:neumorph_backgroundColor="@color/bg_primary"
+                app:neumorph_shadowColorLight="@color/neumorph_light"
+                app:neumorph_shadowColorDark="@color/neumorph_dark"
+                app:neumorph_shadowElevation="5dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_power"
+                    android:contentDescription="@string/btn_power"
+                    android:tint="@color/power_red"
+                    android:scaleType="center" />
+            </soup.neumorphism.NeumorphCardView>
+
+            <!-- Status pill: connection dot + status text; opens the connect overlay. -->
+            <soup.neumorphism.NeumorphCardView
+                android:id="@+id/statusPill"
+                android:layout_width="0dp"
+                android:layout_height="64dp"
+                android:layout_weight="1"
+                android:layout_marginStart="14dp"
+                android:layout_marginEnd="14dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:neumorph_shapeAppearance="@style/NeumorphPill"
+                app:neumorph_backgroundColor="@color/bg_primary"
+                app:neumorph_shadowColorLight="@color/neumorph_light"
+                app:neumorph_shadowColorDark="@color/neumorph_dark"
+                app:neumorph_shadowElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
+
+                    <View
+                        android:id="@+id/statusDot"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_circle_button" />
+
+                    <TextView
+                        android:id="@+id/statusText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:text="@string/status_disconnected" />
+                </LinearLayout>
+            </soup.neumorphism.NeumorphCardView>
+
+            <soup.neumorphism.NeumorphCardView
+                android:id="@+id/settingsButton"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:neumorph_shapeAppearance="@style/NeumorphOval"
+                app:neumorph_backgroundColor="@color/bg_primary"
+                app:neumorph_shadowColorLight="@color/neumorph_light"
+                app:neumorph_shadowColorDark="@color/neumorph_dark"
+                app:neumorph_shadowElevation="5dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_settings"
+                    android:contentDescription="@string/btn_settings"
+                    android:scaleType="center" />
+            </soup.neumorphism.NeumorphCardView>
+        </LinearLayout>
+
+        <!-- D-pad + aim area: weight=1 absorbs spare vertical space and centers
+             the stack. The DPadView also draws the LEFT volume arc around its ring,
+             so there is no separate volume slider. aimAnchor reserves the spot below
+             the D-pad where MainActivity positions the overlay aim button. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <!-- Width is match_parent so onMeasure (which squares to min(w,h)) caps
+                 the D-pad at the available width on narrow phones — preventing the
+                 left volume arc from clipping — while still growing to 360dp tall. -->
+            <com.airremote.phone.DPadView
+                android:id="@+id/dpadView"
+                android:layout_width="match_parent"
+                android:layout_height="360dp" />
+
+            <Space
+                android:id="@+id/aimAnchor"
+                android:layout_width="112dp"
+                android:layout_height="112dp"
+                android:layout_marginTop="16dp" />
+        </LinearLayout>
+
+        <!-- Home + Keyboard row (centered group). -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="4dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <soup.neumorphism.NeumorphCardView
+                android:id="@+id/homeButton"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_marginEnd="24dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:neumorph_shapeAppearance="@style/NeumorphOval"
+                app:neumorph_backgroundColor="@color/bg_primary"
+                app:neumorph_shadowColorLight="@color/neumorph_light"
+                app:neumorph_shadowColorDark="@color/neumorph_dark"
+                app:neumorph_shadowElevation="5dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_home"
+                    android:contentDescription="@string/btn_home"
+                    android:scaleType="center" />
+            </soup.neumorphism.NeumorphCardView>
+
+            <soup.neumorphism.NeumorphCardView
+                android:id="@+id/keyboardButton"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:neumorph_shapeAppearance="@style/NeumorphOval"
+                app:neumorph_backgroundColor="@color/bg_primary"
+                app:neumorph_shadowColorLight="@color/neumorph_light"
+                app:neumorph_shadowColorDark="@color/neumorph_dark"
+                app:neumorph_shadowElevation="5dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_keyboard"
+                    android:contentDescription="@string/btn_keyboard"
+                    android:scaleType="center" />
+            </soup.neumorphism.NeumorphCardView>
+        </LinearLayout>
+
+        <!-- Back: a wide pill as wide as Home + gap + Keyboard combined
+             (72 + 24 + 72 = 168dp), centered directly under that row so the
+             two round buttons read as "sitting on" the back bar. -->
+        <soup.neumorphism.NeumorphCardView
+            android:id="@+id/backButton"
+            android:layout_width="168dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:neumorph_shapeAppearance="@style/NeumorphPill"
+            app:neumorph_backgroundColor="@color/bg_primary"
+            app:neumorph_shadowColorLight="@color/neumorph_light"
+            app:neumorph_shadowColorDark="@color/neumorph_dark"
+            app:neumorph_shadowElevation="5dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_back"
+                android:contentDescription="@string/btn_back"
+                android:scaleType="center" />
+        </soup.neumorphism.NeumorphCardView>
+
+        <!-- Custom app-shortcut buttons. Default labels YouTube / Netflix / Prime;
+             made configurable later. No-op for now (logic wired in a later pass). -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <soup.neumorphism.NeumorphCardView
+                android:id="@+id/customButton1"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:neumorph_shapeAppearance="@style/NeumorphRounded"
+                app:neumorph_backgroundColor="@color/bg_primary"
+                app:neumorph_shadowColorLight="@color/neumorph_light"
+                app:neumorph_shadowColorDark="@color/neumorph_dark"
+                app:neumorph_shadowElevation="5dp">
+
+                <ImageView
+                    android:id="@+id/customIcon1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="@string/app_youtube" />
+            </soup.neumorphism.NeumorphCardView>
+
+            <soup.neumorphism.NeumorphCardView
+                android:id="@+id/customButton2"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:neumorph_shapeAppearance="@style/NeumorphRounded"
+                app:neumorph_backgroundColor="@color/bg_primary"
+                app:neumorph_shadowColorLight="@color/neumorph_light"
+                app:neumorph_shadowColorDark="@color/neumorph_dark"
+                app:neumorph_shadowElevation="5dp">
+
+                <ImageView
+                    android:id="@+id/customIcon2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="@string/app_netflix" />
+            </soup.neumorphism.NeumorphCardView>
+
+            <soup.neumorphism.NeumorphCardView
+                android:id="@+id/customButton3"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                app:neumorph_shapeAppearance="@style/NeumorphRounded"
+                app:neumorph_backgroundColor="@color/bg_primary"
+                app:neumorph_shadowColorLight="@color/neumorph_light"
+                app:neumorph_shadowColorDark="@color/neumorph_dark"
+                app:neumorph_shadowElevation="5dp">
+
+                <ImageView
+                    android:id="@+id/customIcon3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="@string/app_prime" />
+            </soup.neumorphism.NeumorphCardView>
+        </LinearLayout>
+
+        <!-- Collapsible typing area. "gone" = invisible AND no layout space.
+             The keyboard icon flips it to "visible" and focuses the field. -->
+        <LinearLayout
+            android:id="@+id/textInputRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="12dp"
+            android:visibility="gone">
+
+            <com.airremote.phone.BackspaceAwareEditText
+                android:id="@+id/textField"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/hint_type_text"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:inputType="textVisiblePassword"
+                android:imeOptions="actionSend"
+                android:singleLine="true" />
+
+            <Button
+                android:id="@+id/sendButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/btn_send" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- ══ Air-mouse aim overlay ═══════════════════════════════════════════
+         Both "gone" until the aim button is held. aimDimOverlay swallows touches
+         over the rest of the UI; aimButton draws on top, positioned at aimAnchor
+         by MainActivity.syncAimButtonPosition(). -->
+    <View
+        android:id="@+id/aimDimOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="false" />
+
+    <soup.neumorphism.NeumorphCardView
+        android:id="@+id/aimButton"
+        android:layout_width="112dp"
+        android:layout_height="112dp"
+        android:layout_gravity="top|center_horizontal"
+        android:clickable="true"
+        android:focusable="true"
+        app:neumorph_shapeAppearance="@style/NeumorphOval"
+        app:neumorph_backgroundColor="@color/bg_primary"
+        app:neumorph_shadowColorLight="@color/neumorph_light"
+        app:neumorph_shadowColorDark="@color/neumorph_dark"
+        app:neumorph_shadowElevation="6dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="@color/accent"
+            android:textStyle="bold"
+            android:text="@string/btn_aim" />
+    </soup.neumorphism.NeumorphCardView>
+
+    <!-- ══ Connect overlay (Discover / IP) ═════════════════════════════════
+         Hidden until the status pill is tapped. Dim scrim + centered neumorph
+         card that holds the platform picker, Discover, the found-TV list, and
+         manual IP. The inner controls stay framework widgets (referenced by type
+         in MainActivity); only the card surface is neumorphic. -->
+    <FrameLayout
+        android:id="@+id/connectOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#B30A1026"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <!-- Anchored just under the status pill and animated to grow from the top
+             (pivot top-centre) so it reads like the pill expanding into a panel. -->
+        <soup.neumorphism.NeumorphCardView
+            android:id="@+id/connectPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="84dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:neumorph_shapeAppearance="@style/NeumorphRounded"
+            app:neumorph_backgroundColor="@color/bg_primary"
+            app:neumorph_shadowColorLight="@color/neumorph_light"
+            app:neumorph_shadowColorDark="@color/neumorph_dark"
+            app:neumorph_shadowElevation="6dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Title + close. -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/connect_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/closeConnectButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_back"
+                        android:background="@drawable/bg_circle_button"
+                        android:contentDescription="@string/btn_close"
+                        android:scaleType="center" />
+                </LinearLayout>
+
+                <Spinner
+                    android:id="@+id/platformSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" />
+
+                <soup.neumorphism.NeumorphCardView
+                    android:id="@+id/discoverButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:neumorph_shapeAppearance="@style/NeumorphPill"
+                    app:neumorph_backgroundColor="@color/bg_primary"
+                    app:neumorph_shadowColorLight="@color/neumorph_light"
+                    app:neumorph_shadowColorDark="@color/neumorph_dark"
+                    app:neumorph_shadowElevation="4dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"
+                        android:text="@string/discover" />
+                </soup.neumorphism.NeumorphCardView>
+
+                <!-- Discover/connect feedback ("Searching…", "No TV found", etc.). -->
+                <TextView
+                    android:id="@+id/overlayStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/text_secondary"
+                    android:visibility="gone" />
+
+                <!-- Discovered TVs appear here as tappable name buttons (added in
+                     MainActivity). -->
+                <LinearLayout
+                    android:id="@+id/discoveredList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp" />
+
+                <!-- Manual IP entry. -->
+                <LinearLayout
+                    android:id="@+id/ipRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="12dp">
+
+                    <!-- imeOptions="actionDone" pins Enter to a Done action (wired to
+                         Connect in MainActivity) instead of jumping focus. -->
+                    <EditText
+                        android:id="@+id/ipField"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/hint_tv_ip"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:inputType="text"
+                        android:singleLine="true"
+                        android:imeOptions="actionDone" />
+
+                    <soup.neumorphism.NeumorphCardView
+                        android:id="@+id/connectButton"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_marginStart="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:neumorph_shapeAppearance="@style/NeumorphOval"
+                        app:neumorph_backgroundColor="@color/bg_primary"
+                        app:neumorph_shadowColorLight="@color/neumorph_light"
+                        app:neumorph_shadowColorDark="@color/neumorph_dark"
+                        app:neumorph_shadowElevation="4dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:textColor="@color/accent"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:text="@string/connect_arrow" />
+                    </soup.neumorphism.NeumorphCardView>
+                </LinearLayout>
+            </LinearLayout>
+        </soup.neumorphism.NeumorphCardView>
+    </FrameLayout>
+
+    <!-- ══ Settings overlay ═════════════════════════════════════════════════
+         Replaces the old PopupMenu. A dim scrim (tap = dismiss) + a neumorph card
+         anchored top-right under the settings icon, animated to expand toward the
+         bottom-left (pivot top-right). Holds the hover-to-focus toggle + the aim and
+         scroll sensitivity sliders. -->
+    <FrameLayout
+        android:id="@+id/settingsOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#66000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <soup.neumorphism.NeumorphCardView
+            android:id="@+id/settingsPanel"
+            android:layout_width="290dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="92dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:neumorph_shapeAppearance="@style/NeumorphRounded"
+            app:neumorph_backgroundColor="@color/bg_primary"
+            app:neumorph_shadowColorLight="@color/neumorph_light"
+            app:neumorph_shadowColorDark="@color/neumorph_dark"
+            app:neumorph_shadowElevation="6dp">
+
+            <!-- Scrollable so the panel never clips off-screen as more rows are added
+                 (update, suggested apps, shortcut buttons). The card is bounded to the
+                 space between its top and bottom margins; this ScrollView fills it. -->
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_title"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <!-- Hover-to-focus toggle row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/menu_hover_to_focus"
+                        android:textColor="@color/text_primary" />
+
+                    <Switch
+                        android:id="@+id/hoverFocusSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <!-- Haptic feedback toggle row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/haptics"
+                        android:textColor="@color/text_primary" />
+
+                    <Switch
+                        android:id="@+id/hapticsSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <!-- Aim (gyro) sensitivity -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/aim_sensitivity"
+                    android:textColor="@color/text_secondary" />
+
+                <SeekBar
+                    android:id="@+id/gyroSensSeek"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100" />
+
+                <!-- Horizontal swipe strength -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/swipe_strength_h"
+                    android:textColor="@color/text_secondary" />
+
+                <SeekBar
+                    android:id="@+id/swipeHSeek"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100" />
+
+                <!-- Vertical swipe strength -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/swipe_strength_v"
+                    android:textColor="@color/text_secondary" />
+
+                <SeekBar
+                    android:id="@+id/swipeVSeek"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100" />
+
+                <!-- ── Shortcut buttons ──────────────────────────────────────
+                     One tappable row per custom button slot. Tapping a row asks
+                     the TV for its app list (over WS) and shows a name-only
+                     chooser; the chosen app is bound to that slot and its icon
+                     painted onto the button. Mirrors the long-press shortcut on
+                     the buttons themselves, but discoverable here. -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/settings_custom_buttons"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/settings_custom_buttons_hint"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/customSlotRow1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingVertical="8dp"
+                    android:drawableEnd="@android:drawable/ic_menu_edit"
+                    android:drawablePadding="8dp"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/customSlotRow2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingVertical="8dp"
+                    android:drawableEnd="@android:drawable/ic_menu_edit"
+                    android:drawablePadding="8dp"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/customSlotRow3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingVertical="8dp"
+                    android:drawableEnd="@android:drawable/ic_menu_edit"
+                    android:drawablePadding="8dp"
+                    android:textColor="@color/text_primary" />
+
+                <!-- ── Suggested apps (mini-store) ──────────────────────────────
+                     A curated list the developer advertises (e.g. a TV launcher),
+                     loaded from a hosted JSON. Tapping a row downloads its APK and
+                     installs it on the connected TV over ADB. Rows are added into
+                     suggestedAppsContainer programmatically (see MainActivity). -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/suggested_apps"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/suggestedAppsStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/suggested_apps_hint"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:id="@+id/suggestedAppsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="4dp" />
+
+                <!-- ── App version / updates ────────────────────────────────────
+                     Checks GitHub Releases for a newer phone-app build and installs it. -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/updates"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/updateStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/checkUpdatesRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingVertical="8dp"
+                    android:text="@string/check_for_updates"
+                    android:drawableEnd="@drawable/ic_settings"
+                    android:drawablePadding="8dp"
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
+            </ScrollView>
+        </soup.neumorphism.NeumorphCardView>
+    </FrameLayout>
+
+</FrameLayout>

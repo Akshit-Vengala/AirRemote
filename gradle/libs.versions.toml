@@ -1,0 +1,26 @@
+# Version catalog — one place to update dependency versions across all modules.
+# Referenced in build files as libs.some.library or libs.plugins.some.plugin.
+[versions]
+agp                   = "8.7.3"
+kotlin                = "2.0.21"
+kotlinx-serialization = "1.7.3"
+junit                 = "5.10.3"
+java-websocket        = "1.5.7"
+okhttp                = "4.12.0"
+dadb                  = "1.2.10"
+androidx-core         = "1.13.1"
+
+[libraries]
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+junit-jupiter              = { module = "org.junit.jupiter:junit-jupiter",                   version.ref = "junit" }
+java-websocket             = { module = "org.java-websocket:Java-WebSocket",                 version.ref = "java-websocket" }
+okhttp                     = { module = "com.squareup.okhttp3:okhttp",                       version.ref = "okhttp" }
+dadb                       = { module = "dev.mobile:dadb",                                   version.ref = "dadb" }
+androidx-core-ktx          = { module = "androidx.core:core-ktx",                            version.ref = "androidx-core" }
+
+[plugins]
+android-application  = { id = "com.android.application",                   version.ref = "agp"    }
+android-library      = { id = "com.android.library",                       version.ref = "agp"    }
+kotlin-android       = { id = "org.jetbrains.kotlin.android",              version.ref = "kotlin" }
+kotlin-jvm           = { id = "org.jetbrains.kotlin.jvm",                  version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

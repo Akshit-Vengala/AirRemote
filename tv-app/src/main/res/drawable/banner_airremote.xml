@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Leanback launcher banner (320x180). Android TV launchers show a banner, not an
+     icon, for the app tile. Same navy gradient + remote glyph as the app icon; the
+     remote is scaled up and centred via a group transform (the glyph itself is
+     authored in the 108x108 icon space). Original art. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+
+    <path android:pathData="M0,0h320v180h-320z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="20" android:startY="0"
+                android:endX="300" android:endY="180"
+                android:startColor="#3D4FE3"
+                android:endColor="#1B2150" />
+        </aapt:attr>
+    </path>
+
+    <!-- Remote glyph (108x108 design) scaled 1.6x and centred at (160,90). -->
+    <group
+        android:translateX="73.6"
+        android:translateY="3.6"
+        android:scaleX="1.6"
+        android:scaleY="1.6">
+        <path
+            android:pathData="M50,22 L58,22 Q68,22 68,32 L68,76 Q68,86 58,86 L50,86 Q40,86 40,76 L40,32 Q40,22 50,22 Z"
+            android:fillColor="#F4F6FA" />
+        <path
+            android:pathData="M44,31 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0 Z"
+            android:fillColor="#E5392F" />
+        <path
+            android:pathData="M43,50 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 Z"
+            android:fillColor="#2C3142" />
+        <path
+            android:pathData="M49.5,50 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 Z"
+            android:fillColor="#E8EBF0" />
+        <path
+            android:pathData="M43.5,74 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 Z"
+            android:fillColor="#2C3142" />
+        <path
+            android:pathData="M55.5,74 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 Z"
+            android:fillColor="#2C3142" />
+    </group>
+</vector>

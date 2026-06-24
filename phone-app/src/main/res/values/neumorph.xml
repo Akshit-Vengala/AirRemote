@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shape appearances for the Neumorphism library (soup.neumorphism).
+     Referenced via app:neumorph_shapeAppearance on Neumorph* views.
+
+     NOTE: names are intentionally dot-free. A dotted style name like
+     "Neumorph.Oval" makes AAPT resolve an implicit parent style "Neumorph",
+     which doesn't exist → "resource style/Neumorph not found". -->
+<resources>
+    <!-- Circular buttons (power, settings, home, keyboard, back, aim, dot). -->
+    <style name="NeumorphOval">
+        <item name="neumorph_cornerFamily">oval</item>
+        <item name="neumorph_cornerSize">100dp</item>
+    </style>
+
+    <!-- Rounded-rectangle buttons / cards (custom app shortcuts, panel). -->
+    <style name="NeumorphRounded">
+        <item name="neumorph_cornerFamily">rounded</item>
+        <item name="neumorph_cornerSize">18dp</item>
+    </style>
+
+    <!-- Pill (status bar) — fully rounded ends. -->
+    <style name="NeumorphPill">
+        <item name="neumorph_cornerFamily">rounded</item>
+        <item name="neumorph_cornerSize">28dp</item>
+    </style>
+</resources>

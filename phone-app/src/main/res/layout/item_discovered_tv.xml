@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    One discovered TV in the connect overlay's results list. Styled as a neumorphic
+    pill to match the Discover/Connect buttons (was a bare framework Button before).
+    Inflated per-device in MainActivity.showDiscoveredDevice(); the whole card is the
+    tap target (tap = connect). The root id lets us set the click listener; deviceName
+    is filled with the TV's name.
+-->
+<soup.neumorphism.NeumorphCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/discoveredDeviceCard"
+    android:layout_width="match_parent"
+    android:layout_height="52dp"
+    android:layout_marginTop="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:neumorph_shapeAppearance="@style/NeumorphPill"
+    app:neumorph_backgroundColor="@color/bg_primary"
+    app:neumorph_shadowColorLight="@color/neumorph_light"
+    app:neumorph_shadowColorDark="@color/neumorph_dark"
+    app:neumorph_shadowElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_tv"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:id="@+id/deviceName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/connect_arrow"
+            android:textColor="@color/accent"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</soup.neumorphism.NeumorphCardView>
