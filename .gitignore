@@ -50,6 +50,8 @@ desktop.ini
 # ─── Temporarily excluded (keep private until ready to publish) ───────────────
 CLAUDE.md
 docs/
+README.md
+githubactionitems.md
 
 # Personal dev helper — re-grants TV a11y after reinstall; not part of the app
 enablea11y.ps1
